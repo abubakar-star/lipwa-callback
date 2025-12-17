@@ -14,21 +14,24 @@ if (file_exists(__DIR__.'/.env')) {
     }
 }
 
-$dbHost = getenv('DB_HOST') ?: 'sql313.infinityfree.com';
-$dbName = getenv('DB_NAME') ?: 'if0_39741603_dlink_network';
-$dbUser = getenv('DB_USER') ?: 'if0_39741603';
-$dbPass = getenv('DB_PASS') ?: 'mkala3771';
 
-$dsn = "mysql:host=$dbHost;dbname=$dbName;charset=utf8mb4";
-$options = [
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-];
+$host = getenv("DB_HOST");
+$db   = getenv("DB_NAME");
+$user = getenv("DB_USER");
+$pass = getenv("DB_PASS");
+$port = getenv("DB_PORT") ?: 5432;
 
 try {
-    $pdo = new PDO($dsn, $dbUser, $dbPass, $options);
+    $pdo = new PDO(
+        "pgsql:host=$host;port=$port;dbname=$db",
+        $user,
+        $pass,
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+        ]
+    );
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo "DB connection failed: " . htmlspecialchars($e->getMessage());
-    exit;
+    error_log($e->getMessage());
+    die("Database connection failed");
 }
